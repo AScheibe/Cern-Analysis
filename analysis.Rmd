@@ -1,0 +1,75 @@
+---
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, fig.height = 4)
+library(tidyverse)
+library(knitr)
+source("scripts/viridis.R")
+```
+## LHC Data Analysis
+### Alexander Scheibe
+
+
+When analyzing our LHC data, we found a ratio of 20 electrons to 18 muons – from the “e, neutrino” and “muon, neutrino” events. This analysis was adequate because the ratio of electron to muon events was supposed to be about 50/50. Continuing – for the ratio of W+/W- – we examined 35 W+ and 20 W- events. This analysis is about right because there are supposed to be a few more positive events – when compared to negative. Furthermore, when constructing our histogram for 2-lepton events, we examined a peak at around 90 GeV which would indicate Z Boson particles. Along with that, there were also two other peaks at around 3 GeV and 10 GeV. At 3 GeV, this would indicate a J/Ѱ, while the 10GeV peak would indicate an upsilon particle. For our 4-lepton events, the decays ended up with 2 Z Bosons. These could have come from the Higgs, or other processes. For possible Higg candidates, we found 9 candidates, but only 3 of the events had a mass around 125 GeV – which is the Higgs mass. With that, there were two 2 electron/2 muon decays that had a mass of 96.12 GeV and 148.72 GeV. Along with that, there was a 4-electron decay that had a mass of 154.95 GeV. In all, with our data we were able to find three Higg candidates – below there is a screenshot of one of the Higg candidate events that we ran into.
+
+![Event 57](/Users/alexscheibe/Desktop/Screen Shot 2022-12-09 at 7.29.42 AM.png)
+
+#### Ratio of Electrons/Muons: 20/18
+
+#### Ratio of W+/W-: 35/20
+
+#### Higg Candidate Events: 9 (Only 3 when considering mass)
+
+```{r, echo=FALSE}
+cern_filtered = read_csv("CERN - Sheet1.csv") %>% 
+  select(-to_look) %>% 
+  drop_na() %>% 
+  filter(primary_state != "Zoo")
+
+two_lepton = filter(cern_filtered, final_state == "di-e" | 
+             final_state == "di-muon")
+  
+four_lepton = filter(cern_filtered, final_state == "4-e" | 
+              final_state == "4-muon" | final_state == "2e-2muon")
+
+
+ggplot(two_lepton, aes(x=mass, fill = final_state)) + 
+  ggtitle("2-Lepton Events") +
+  xlab("Mass") +
+  ylab("Count") +
+  labs(fill = "Final State") +
+  theme_bw() +
+  geom_histogram(binwidth = 10) +
+  scale_x_continuous(breaks = seq(0,350,20))
+
+ggplot(four_lepton, aes(x=mass, fill = final_state)) + 
+  ggtitle("4-Lepton Events") +
+  xlab("Mass") +
+  ylab("Count") +
+  labs(fill = "Final State") +
+  theme_bw() +
+  geom_histogram(binwidth = 10) +
+  scale_x_continuous(breaks = seq(80,400,20))
+
+num_e_neut = count(filter(cern_filtered, final_state == "e, neutrino"))
+num_muon_neut = count(filter(cern_filtered, final_state == "muon, neutrino"))
+
+num_w_plus = count(filter(cern_filtered, primary_state == "W+"))
+num_w_minus = count(filter(cern_filtered, primary_state == "W-"))
+
+num_higgs = count(four_lepton)
+```
+
+
+```{r, echo=FALSE}
+formatted = read_csv("CERN-Formatted - Sheet1.csv") %>% 
+  drop_na()
+  
+kable(formatted, caption = "Data Collected", align = "c")
+```
+
+
